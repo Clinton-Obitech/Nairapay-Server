@@ -52,8 +52,6 @@ export const createUser = async (req, res) => {
 
         try {
 
-        await pool.query("BEGIN");
-
         const idResult = await pool.query(
             `INSERT INTO users 
             (firstname, lastname, username, email, password, state)
@@ -62,20 +60,17 @@ export const createUser = async (req, res) => {
             [firstname, lastname, username, email, hashpassword, state]
         );
 
-        await pool.query(
+        /*await pool.query(
             `INSERT INTO click_earning (user_id) VALUES ($1)`,
             [idResult.rows[0].id]
-        );
+        );*/
         
-        await pool.query("COMMIT");
-
         return res.json({
             success: true,
             message: "account created successfully"
         })
 
     } catch (err) {
-        await pool.query("ROLLBACK");
         console.error(err)
         return res.json({
             message: "insert went wrong"
