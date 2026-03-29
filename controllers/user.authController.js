@@ -48,9 +48,8 @@ export const createUser = async (req, res) => {
            })
         }
     
-    const hashpassword = await hash(password, 10);
+        const hashpassword = await hash(password, 10);
 
-    try {
         await pool.query("BEGIN");
 
         const idResult = await pool.query(
@@ -73,21 +72,14 @@ export const createUser = async (req, res) => {
             message: "account created successfully"
         })
 
-    } catch (err) {
-        try {
+       
+   } catch (err) {
+     try {
         await pool.query("ROLLBACK");
         } catch (rollbackErr) {
         console.error("Rollback failed:", rollbackErr);
         }
 
-        console.error(err);
-        return res.json({
-            success: false,
-            message: "something went wrong"
-        })
-    }
-
-   } catch (err) {
     console.error("createUser server error: " + err);
     return res.json({
         success: false,
