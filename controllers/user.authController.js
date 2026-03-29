@@ -54,7 +54,7 @@ export const createUser = async (req, res) => {
     } catch (err) {
         return res.json({
             success: false,
-            message: "something went wrong"
+            message: "existing user error"
         })
     }
 
@@ -63,7 +63,7 @@ export const createUser = async (req, res) => {
     try {
         await pool.query("BEGIN");
 
-        const { rows } = await pool.query(
+        const idResult = await pool.query(
             `INSERT INTO users 
             (firstname, lastname, username, email, password, state)
             VALUES
@@ -73,7 +73,7 @@ export const createUser = async (req, res) => {
 
         await pool.query(
             `INSERT INTO click_earning (user_id) VALUES ($1)`,
-            [rows[0].id]
+            [idResult.rows[0].id]
         );
         
         await pool.query("COMMIT");
