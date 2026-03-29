@@ -25,7 +25,7 @@ export const createUser = async (req, res) => {
     }
 
         const { rows } = await pool.query(
-            "SELECT username, email FROM admin WHERE username = $1 OR email = $2",
+            "SELECT username, email FROM users WHERE username = $1 OR email = $2",
             [username, email]
         )
         
@@ -50,9 +50,8 @@ export const createUser = async (req, res) => {
     
         const hashpassword = await hash(password, 10);
 
-        try {
 
-        const idResult = await pool.query(
+        await pool.query(
             `INSERT INTO users 
             (firstname, lastname, username, email, password, state)
             VALUES
@@ -70,14 +69,6 @@ export const createUser = async (req, res) => {
             message: "account created successfully"
         })
 
-    } catch (err) {
-        console.error(err)
-        return res.json({
-            message: "insert went wrong"
-        })
-    }
-
-       
    } catch (err) {
 
     console.error("createUser server error: " + err);
