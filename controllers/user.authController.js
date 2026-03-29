@@ -24,8 +24,6 @@ export const createUser = async (req, res) => {
         });
     }
 
-    try {
-
         const { rows } = await pool.query(
             "SELECT username, email FROM admin WHERE username = $1 OR email = $2",
             [username, email]
@@ -50,14 +48,6 @@ export const createUser = async (req, res) => {
            })
         }
     
-
-    } catch (err) {
-        return res.json({
-            success: false,
-            message: "existing user error"
-        })
-    }
-
     const hashpassword = await hash(password, 10);
 
     try {
