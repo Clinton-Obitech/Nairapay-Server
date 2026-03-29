@@ -57,7 +57,7 @@ export const createUser = async (req, res) => {
             `INSERT INTO users 
             (firstname, lastname, username, email, password, state)
             VALUES
-            ($1, $2, $3, $4, $5, %6) RETURNING id`, 
+            ($1, $2, $3, $4, $5, $6) RETURNING id`, 
             [firstname, lastname, username, email, hashpassword, state]
         );
 
@@ -74,7 +74,13 @@ export const createUser = async (req, res) => {
         })
 
     } catch (err) {
+        try {
         await pool.query("ROLLBACK");
+        } catch (rollbackErr) {
+        console.error("Rollback failed:", rollbackErr);
+        }
+
+        console.error(err);
         return res.json({
             success: false,
             message: "something went wrong"
