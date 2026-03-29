@@ -9,6 +9,7 @@ export const createUser = async (req, res) => {
    try {
 
     const { firstname, lastname, username, email, password, state, terms } = req.body;
+    console.log(req.body)
 
     if (!firstname || !lastname || !username || !email || !password || !state) {
         return res.json({
@@ -25,20 +26,18 @@ export const createUser = async (req, res) => {
     }
 
         const { rows } = await pool.query(
-            "SELECT username, email FROM users WHERE username = $1 OR email = $2",
+            "SELECT * FROM users WHERE username = $1 OR email = $2",
             [username, email]
         )
-        
-        const existingUser = rows[0];
 
-        if (existingUser.email === email && existingUser.username === username) {
+        if (rows.length > 0) {
             return res.json({
             success: false,
-            message: "username and email already exists",
+            message: "credentias already exists",
             })
         }
 
-        if (existingUser.email === email || existingUser.username === username) {
+        /*if (existingUser.email === email || existingUser.username === username) {
             return res.json({
             success: false,
             message: 
@@ -46,25 +45,37 @@ export const createUser = async (req, res) => {
             ? "email already exists"
             : "username credentials already exists",
            })
-        }
+        }*/
     
         const hashpassword = await hash(password, 10);
 
+        const client = await pool.connect();
 
-        await pool.query(
-            `INSERT INTO users (firstname, lastname, username, email, password, state) VALUES ($1, $2, $3, $4, $5, $6)`, 
+    try {
+        await client.query("BEGIN");
+        const idResult = await client.query(
+            `INSERT INTO users 
+            (firstname, lastname, username, email, password, state) 
+            VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`, 
             [firstname, lastname, username, email, hashpassword, state]
-        );
+        )
 
-        /*await pool.query(
+        await client.query(
             `INSERT INTO click_earning (user_id) VALUES ($1)`,
             [idResult.rows[0].id]
-        );*/
-        
+        );
+        await client.query("COMMIT");
         return res.json({
             success: true,
             message: "account created successfully"
         })
+
+    } catch (err) {
+        await client.query("ROLLBACK");
+        console.error(err);
+    } finally {
+        client.release();
+    }
 
    } catch (err) {
 
@@ -137,7 +148,7 @@ export const loginUser = async (req, res) => {
 
         res.cookie("usertoken", usertoken, {
             httpOnly: true,
-            secure: false,
+            secure: true,
             sameSite: "none",
             maxAge: 24 * 60 * 60 * 1000,
         })
