@@ -52,10 +52,7 @@ export const createUser = async (req, res) => {
 
 
         await pool.query(
-            `INSERT INTO users 
-            (firstname, lastname, username, email, password, state)
-            VALUES
-            ($1, $2, $3, $4, $5, $6) RETURNING id`, 
+            `INSERT INTO users (firstname, lastname, username, email, password, state) VALUES ($1, $2, $3, $4, $5, $6)`, 
             [firstname, lastname, username, email, hashpassword, state]
         );
 
