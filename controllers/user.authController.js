@@ -8,8 +8,7 @@ export const createUser = async (req, res) => {
 
    try {
 
-    const { firstname, lastname, username, email, password, state, terms } = req.body;
-    console.log(req.body)
+    const {  lastname, username, email, password, state, terms } = req.body;
 
     if (!firstname || !lastname || !username || !email || !password || !state) {
         return res.json({
@@ -36,16 +35,6 @@ export const createUser = async (req, res) => {
             message: "credentias already exists",
             })
         }
-
-        /*if (existingUser.email === email || existingUser.username === username) {
-            return res.json({
-            success: false,
-            message: 
-            existingUser.email === email
-            ? "email already exists"
-            : "username credentials already exists",
-           })
-        }*/
     
         const hashpassword = await hash(password, 10);
 
@@ -93,7 +82,10 @@ export const loginUser = async (req, res) => {
 
         const { username, password } = req.body;
 
-        if (!username || !password) {
+        const safeUsername = username.trim().toLowerCase();
+        const safePassword = password.trim().toLowerCase();
+
+        if (!safeUsername || !safePassword) {
             return res.json({
                 success: false,
                 message: "fill in both fields to continue"
@@ -102,7 +94,7 @@ export const loginUser = async (req, res) => {
 
         const { rows } = await pool.query(
             `SELECT * FROM users WHERE username = $1`,
-            [username]
+            [safeUsername]
         )
 
         const user = rows[0];
@@ -128,7 +120,7 @@ export const loginUser = async (req, res) => {
             })
         }
 
-        const matchPassword = await compare(password, user.password);
+        const matchPassword = await compare(safePassword, user.password);
 
         if (!matchPassword) {
             return res.json({
