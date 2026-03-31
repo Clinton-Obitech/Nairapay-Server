@@ -91,7 +91,7 @@ export const updateWithdrawalDetails = async (req, res) => {
             [req.user.id]
         )
 
-        if (rows[0].length === 0) {
+        if (rows.length === 0) {
 
             await pool.query(
                 `INSERT INTO users_withdrawal_detail 
@@ -113,7 +113,7 @@ export const updateWithdrawalDetails = async (req, res) => {
         await pool.query(
             `UPDATE users_withdrawal_detail
             SET account_name = $1, bank_name = $2, account_number = $3
-            WHERE user_id = $4`, [req.user.id, account_name, bank_name, account_number]
+            WHERE user_id = $4`, [account_name, bank_name, account_number, req.user.id]
         )
 
         const profile = await fetchProfileData(req.user.id);

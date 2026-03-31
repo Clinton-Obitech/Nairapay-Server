@@ -8,7 +8,7 @@ export const createUser = async (req, res) => {
 
    try {
 
-    const {  lastname, username, email, password, state, terms } = req.body;
+    const { firstname, lastname, username, email, password, state, terms } = req.body;
 
     if (!firstname || !lastname || !username || !email || !password || !state) {
         return res.json({
